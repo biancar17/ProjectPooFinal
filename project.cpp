@@ -4,6 +4,7 @@ using namespace std;
 
 class Exemplu {
 	int exemplu;
+	int an;
 };
 
 int main() {
