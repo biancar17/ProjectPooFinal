@@ -5,6 +5,7 @@ using namespace std;
 class Exemplu {
 	int exemplu;
 	int an;
+	string nume;
 };
 
 int main() {
