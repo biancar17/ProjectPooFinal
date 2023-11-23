@@ -7,10 +7,10 @@ class Location {
 
 	const int maxNumberOfSeats; //constant field
 	int locationId;
-	int numberOfRows;
 	char* name; //dynamically allocated vector of characters
 	int noOfname;
 	string* nameZones;// "VIP", "Regular", "Premium"
+	int numberOfRows;
 	int* numberOfSeatsPerRow;//dynamically allocated numeric vector
 	static int totalLocations; //static field
 
@@ -22,14 +22,14 @@ public:
 		this->name = new char[strlen("A") + 1];
 		strcpy(this->name, "A");
 		this->noOfname = 0;
-		this->nameZones;
+		this->nameZones = NULL;
 		this->numberOfSeatsPerRow = nullptr;
 	}
 	int getLocationId() {
 		return this->locationId;
 	}
 	int getNumberOfRows() {
-		return this->numberOfRows ;
+		return this->numberOfRows;
 	}
 	char* getname() {
 		return this->name;
@@ -46,7 +46,7 @@ public:
 	int getTotalLocations() {
 		return this->totalLocations;
 	}
-	Location(int locationId, int maxNumberOfSeats, int numberOfRows, const char* name, int noOfname, string* nameZones,int* numberOfSeatsPerRow) :maxNumberOfSeats(1000)
+	Location(int locationId, int maxNumberOfSeats, int numberOfRows, const char* name, int noOfname, string* nameZones, int* numberOfSeatsPerRow) :maxNumberOfSeats(1000)
 	{
 		this->locationId = locationId;
 
@@ -69,10 +69,10 @@ public:
 			this->nameZones[i] = nameZones[i];
 		}
 
-		if (numberOfSeatsPerRow !=nullptr && numberOfRows != 0)
+		if (numberOfSeatsPerRow != nullptr && numberOfRows > 0)
 		{
 			this->numberOfSeatsPerRow = new int[this->numberOfRows];
-			for (int i = 0;i < this->numberOfRows;i++)
+			for (int i = 0; i < this->numberOfRows; i++)
 			{
 				if (numberOfSeatsPerRow[i] < maxNumberOfSeats)
 				{
@@ -88,7 +88,7 @@ public:
 		{
 			this->numberOfRows = numberOfRows;
 			this->numberOfSeatsPerRow = nullptr;
-			
+
 		}
 
 	}
@@ -101,20 +101,20 @@ public:
 			delete[]this->numberOfSeatsPerRow;
 		}
 	}
-	
+
 };
 
 int Location::totalLocations = 10;
 
-int main() 
+int main()
 {
 	Location l1;
 	cout << l1.getLocationId() << endl;
 	cout << l1.getname() << endl;
-	cout << l1.getNumberOfRows()<<endl;
+	cout << l1.getNumberOfRows() << endl;
 	cout << l1.getNoOfname() << endl;
 	cout << l1.getNameZones() << endl;
-	for (int i = 0;i < l1.getNumberOfRows();i++) {
+	for (int i = 0; i < l1.getNumberOfRows(); i++) {
 		cout << l1.getNumberOfSeatsPerRow()[i] << endl;
 	}
 	cout << l1.getTotalLocations() << endl;
@@ -123,13 +123,15 @@ int main()
 	int seats[3] = { 10,15,20 };
 	char zoneLetter[3] = { 'A','B','C' };
 	string zonesName[3] = { "VIP", "Regular", "Premium" };
-	Location l2(1,1000,5,zoneLetter,1,zonesName,seats);
+	Location l2(1, 1000, 3, "Sala Palatului", 3, zonesName, seats);
 	cout << l2.getLocationId() << endl;
 	cout << l2.getname() << endl;
 	cout << l2.getNumberOfRows() << endl;
 	cout << l2.getNoOfname() << endl;
-	cout << l2.getNameZones() << endl;
-	for (int i = 0;i < l2.getNumberOfRows();i++) {
+	for (int i = 0; i < l2.getNoOfname(); i++) {
+		cout << l2.getNameZones()[i] << endl;
+	}
+	for (int i = 0; i < l2.getNumberOfRows(); i++) {
 		cout << l2.getNumberOfSeatsPerRow()[i] << endl;
 	}
 	cout << l2.getTotalLocations() << endl;
