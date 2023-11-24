@@ -3,11 +3,49 @@
 #include<string>
 using namespace std;
 
+class Event {
+	string nameEvent;
+	string dateOfEvent;
+	string timeOfEvent;
+	
+
+public:
+	Event() {
+		this->nameEvent = " ";
+		this->dateOfEvent = " ";
+		this->timeOfEvent = " ";
+	}
+	string getNameEvent() {
+		return this->nameEvent;
+	}
+	string getDateOfEvent() {
+		return this->dateOfEvent;
+	}
+	string getTimeOfEvent() {
+		return this->timeOfEvent;
+	}
+
+	void setNameEvent(string nameEvent) {
+		this->nameEvent = nameEvent;
+	}
+	void setDateOfEvent(string dateOfEvent) {
+		this->dateOfEvent = dateOfEvent;
+	}
+	void setTimeOfEvent(string timeOfEvent) {
+		this->timeOfEvent = timeOfEvent;	
+	}
+};
+class Tickets {
+	int ticketId;
+	int category;
+	int price;
+	const int maxNumberOfTickets;
+};
 class Location {
 
 	const int maxNumberOfSeats; //constant field
 	int locationId;
-	char* name; //dynamically allocated vector of characters
+	char* nameRoom; //dynamically allocated vector of characters
 	int noOfname;
 	string* nameZones;// "VIP", "Regular", "Premium"
 	int numberOfRows;
@@ -19,8 +57,8 @@ public:
 	Location() :maxNumberOfSeats(0) {
 		this->locationId = 0;
 		this->numberOfRows = 0;
-		this->name = new char[strlen("A") + 1];
-		strcpy(this->name, "A");
+		this->nameRoom = new char[strlen("A") + 1];
+		strcpy(this->nameRoom, "A");
 		this->noOfname = 0;
 		this->nameZones = NULL;
 		this->numberOfSeatsPerRow = nullptr;
@@ -32,7 +70,7 @@ public:
 		return this->numberOfRows;
 	}
 	char* getname() {
-		return this->name;
+		return this->nameRoom;
 	}
 	int getNoOfname() {
 		return this->noOfname;
@@ -46,7 +84,9 @@ public:
 	int getTotalLocations() {
 		return this->totalLocations;
 	}
-	Location(int locationId, int maxNumberOfSeats, int numberOfRows, const char* name, int noOfname, string* nameZones, int* numberOfSeatsPerRow) :maxNumberOfSeats(1000)
+
+
+	Location(int locationId, int maxNumberOfSeats, int numberOfRows, const char* nameRoom, int noOfname, string* nameZones, int* numberOfSeatsPerRow) :maxNumberOfSeats(1000)
 	{
 		this->locationId = locationId;
 
@@ -58,8 +98,8 @@ public:
 		{
 			this->numberOfRows = 0;
 		}
-		this->name = new char[strlen(name) + 1];
-		strcpy(this->name, name);
+		this->nameRoom = new char[strlen(nameRoom) + 1];
+		strcpy(this->nameRoom, nameRoom);
 
 		this->noOfname = noOfname;
 
@@ -94,8 +134,8 @@ public:
 	}
 
 	~Location() {
-		if (this->name != nullptr) {
-			delete[]this->name;
+		if (this->nameRoom != nullptr) {
+			delete[]this->nameRoom;
 		}
 		if (this->numberOfSeatsPerRow != nullptr) {
 			delete[]this->numberOfSeatsPerRow;
@@ -108,7 +148,24 @@ int Location::totalLocations = 10;
 
 int main()
 {
+	Event e1;
+	cout << "Initialization" << endl;
+	cout << e1.getNameEvent() << endl;
+	cout << e1.getDateOfEvent() << endl;
+	cout << e1.getTimeOfEvent() << endl;
+
+	e1.setNameEvent("Movie Night");
+	e1.setDateOfEvent("17.09.2023");
+	e1.setTimeOfEvent("20:00");
+
+	cout << "Event name:  "<<e1.getNameEvent() << endl;
+	cout << "Date of event: "<<e1.getDateOfEvent() << endl;
+	cout << "Time of event: "<<e1.getTimeOfEvent() << endl;
+
+	cout << "-------------------------------" << endl;
+
 	Location l1;
+	cout << "Initialization" << endl;
 	cout << l1.getLocationId() << endl;
 	cout << l1.getname() << endl;
 	cout << l1.getNumberOfRows() << endl;
@@ -118,23 +175,25 @@ int main()
 		cout << l1.getNumberOfSeatsPerRow()[i] << endl;
 	}
 	cout << l1.getTotalLocations() << endl;
-	cout << endl;
 
+	cout<<"------------------------------------------";
+	cout << endl<<endl;
+		
 	int seats[3] = { 10,15,20 };
 	char zoneLetter[3] = { 'A','B','C' };
 	string zonesName[3] = { "VIP", "Regular", "Premium" };
 	Location l2(1, 1000, 3, "Sala Palatului", 3, zonesName, seats);
-	cout << l2.getLocationId() << endl;
-	cout << l2.getname() << endl;
-	cout << l2.getNumberOfRows() << endl;
-	cout << l2.getNoOfname() << endl;
+	cout <<"Location ID: "<< l2.getLocationId() << endl;
+	cout <<"Location: "<< l2.getname() << endl;
+	cout <<"Number of rows: "<< l2.getNumberOfRows() << endl;
+	cout <<"Number of zones in total: "<< l2.getNoOfname() << endl;
 	for (int i = 0; i < l2.getNoOfname(); i++) {
-		cout << l2.getNameZones()[i] << endl;
+		cout <<"Zone: "<< l2.getNameZones()[i] << endl;
 	}
 	for (int i = 0; i < l2.getNumberOfRows(); i++) {
-		cout << l2.getNumberOfSeatsPerRow()[i] << endl;
+		cout <<"Number of seats per row: "<< l2.getNumberOfSeatsPerRow()[i] << endl;
 	}
-	cout << l2.getTotalLocations() << endl;
+	cout <<"The number of total locations: "<< l2.getTotalLocations() << endl;
 	cout << endl;
 
 }
