@@ -1,9 +1,28 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include<iostream>
 #include<string>
+#include<vector>
 using namespace std;
 
-class Event {
+class ManageServices {
+public:
+	virtual string showClassType() = 0;
+
+	virtual int noOfPersonsForSecurity() {
+		return 0;
+	}
+
+	virtual string eventType() = 0;
+
+	virtual bool needsMedicalCrew() {
+		return false;
+	}
+
+
+};
+
+class Event : public ManageServices {
+protected:
 	string nameEvent;
 	string dateOfEvent;
 	string timeOfEvent;
@@ -73,9 +92,169 @@ public:
 		}
 		return *this;
 	}
+
+	bool operator==(const Event& ev) {
+		return (nameEvent == ev.nameEvent) && (dateOfEvent == ev.dateOfEvent) && (timeOfEvent == ev.timeOfEvent);
+	}
+
+	bool operator!=(const Event& ev) {
+		return !(*this == ev);
+	}
+
+	string showClassType() {
+		return "Normal Event!";
+	}
+
+	int noOfPersonsForSecurity() {
+		return 50;
+	}
+
+	string eventType() {
+		return "N/A";
+	}
+
+	bool needsMedicalCrew() {
+		return false;
+	}
 };
 
-class Tickets {
+class Match : public Event {
+private:
+	bool hasFoodStands;
+	bool isEuropeanCupMatch;
+
+public:
+	Match() : Event() {
+		this->hasFoodStands = false;
+		this->isEuropeanCupMatch = false;
+	}
+
+	Match(string nameEvent, string dateOfEvent, string timeOfEvent, bool hasFoodStands, bool isEuropeanCupMatch) : Event(nameEvent, dateOfEvent, timeOfEvent) {
+		this->hasFoodStands = hasFoodStands;
+		this->isEuropeanCupMatch = isEuropeanCupMatch;
+	}
+
+	Match(const Match& m) : Event(m) {
+		this->hasFoodStands = m.hasFoodStands;
+		this->isEuropeanCupMatch = m.isEuropeanCupMatch;
+	}
+	~Match() {
+	}
+
+	bool getHasFoodStands() {
+		return hasFoodStands;
+	}
+
+	void setHasFoodStands(bool hasFoodStands) {
+		this->hasFoodStands = hasFoodStands;
+	}
+
+	bool getIsEuropeanCupMatch() {
+		return isEuropeanCupMatch;
+	}
+
+	void setIsEuropeanCupMatch(bool isEuropeanCupMatch) {
+		this->isEuropeanCupMatch = isEuropeanCupMatch;
+	}
+
+	Match& operator=(const Match& m) {
+		if (this != &m) {
+			Event::operator=(m);
+			hasFoodStands = m.hasFoodStands;
+			isEuropeanCupMatch = m.isEuropeanCupMatch;
+		}
+		return *this;
+	}
+
+	friend istream& operator>>(istream& in, Match& m) {
+		in >> (Event&)m;
+		cout << "Has Food Stands (1 for true, 0 for false): ";
+		in >> m.hasFoodStands;
+		cout << "Is European Cup Match (1 for true, 0 for false): ";
+		in >> m.isEuropeanCupMatch;
+		return in;
+	}
+
+	friend ostream& operator<<(ostream& out, const Match& m) {
+		out << (Event&)m;
+		out << "Has Food Stands: " << (m.hasFoodStands ? "true" : "false") << endl;
+		out << "Is European Cup Match: " << (m.isEuropeanCupMatch ? "true" : "false") << endl;
+		return out;
+	}
+
+	string showClassType() {
+		return "Match Event!";
+	}
+
+	int noOfPersonsForSecurity() {
+		return 500;
+	}
+
+	string eventType() {
+		return "Football";
+	}
+
+	bool needsMedicalCrew() {
+		return true;
+	}
+};
+
+class EventManager {
+private:
+	vector<Event> events;
+
+public:
+	EventManager() {
+
+	}
+
+	EventManager(int noEvents, Event* events) {
+		for (int i = 0; i < noEvents; i++) {
+			this->events.push_back(events[i]);
+		}
+	}
+
+	~EventManager() {
+
+	}
+
+	void addEvent(Event eventAdd) {
+		events.push_back(eventAdd);
+	}
+
+	void removeEvent(Event eventRmv) {
+		for (int i = 0; i < events.size(); ++i) {
+			if (events[i] == eventRmv) {
+				events.erase(events.begin() + i);
+			}
+		}
+	}
+
+	vector<string> getAllEventNames() {
+		vector<string> eventNames;
+		for (size_t i = 0; i < events.size(); ++i) {
+			eventNames.push_back(events[i].getNameEvent());
+		}
+		return eventNames;
+	}
+
+	void displayAllEvents() {
+		for (int i = 0; i < events.size(); ++i) {
+			cout << events[i] << endl;
+		}
+	}
+
+	friend ostream& operator<<(ostream& out, EventManager em) {
+		out << "Event Manager Contains:" << endl;
+		for (int i = 0; i < em.events.size(); ++i) {
+			out << em.events[i] << endl;
+		}
+		return out;
+	}
+};
+
+class Tickets : public ManageServices {
+protected:
 	const int ticketId;
 	int category;
 	int price;
@@ -108,7 +287,7 @@ public:
 	void setPrice(int price) {
 		this->price = price;
 	}
-	void setPricesPerCategory() {
+	void setPricesPerCategory(int category, int* pricesPerCategory) {
 		delete[] this->pricesPerCategory;
 		this->pricesPerCategory = nullptr;
 		this->pricesPerCategory = new int[category];
@@ -120,14 +299,14 @@ public:
 		cout << endl;
 	}
 
-	Tickets(int category, int price, int pricesPerCategory) : ticketId(0) {
+	Tickets(int category, int price, int* pricesPerCategory) : ticketId(0) {
 
 		this->category = category;
 		this->price = price;
 		this->pricesPerCategory = new int[category];
 		for (int i = 0; i < this->category; i++)
 		{
-			this->pricesPerCategory[i] = 0;
+			this->pricesPerCategory[i] = pricesPerCategory[i];
 		}
 	}
 
@@ -167,6 +346,9 @@ public:
 		in >> c.category;
 		cout << "Price: ";
 		in >> c.price;
+		cout << "Prices per catergory: ";
+		delete[]c.pricesPerCategory;
+		c.pricesPerCategory = new int[c.category];
 		for (int i = 0; i < c.category; i++)
 		{
 			in >> c.pricesPerCategory[i];
@@ -187,19 +369,39 @@ public:
 		return out;
 	}
 
+	Tickets operator+(const Tickets& t) {
+		Tickets result(*this);
+		result.price += t.price;
+		return result;
+	}
+
+	Tickets operator-(const Tickets& t) {
+		Tickets result(*this);
+		result.price -= t.price;
+		return result;
+	}
+
+
+	string showClassType() {
+		return "Regular Ticket!";
+	}
+
+	string eventType() {
+		return "Unknown";
+	}
 };
 
 class Location {
 
-	const int maxNumberOfSeats; //constant field
+	const int maxNumberOfSeats; 
 	int locationId;
-	char* nameRoom; //dynamically allocated vector of characters
+	char* nameRoom; 
 	int noOfname;
-	const char* nameZones[3] = { "VIP", "Regular", "Premium" };// "VIP", "Regular", "Premium"
+	const char* nameZones[3] = { "VIP", "Regular", "Premium" };
 	char* nameZone;
 	int numberOfRows;
-	int* numberOfSeatsPerRow;//dynamically allocated numeric vector
-	static int totalLocations; //static field
+	int* numberOfSeatsPerRow;
+	static int totalLocations; 
 
 public:
 	Location() :maxNumberOfSeats(0) {
@@ -254,16 +456,9 @@ public:
 		this->noOfname = noOfname;
 	}
 	void setNumberOfSeatsPerRow(int* numberOfSeatsPerRow, int numberOfRows) {
-		// Delete the existing array to avoid memory leaks
 		delete[] this->numberOfSeatsPerRow;
-
-		// Set the pointer to nullptr after deletion
 		this->numberOfSeatsPerRow = nullptr;
-
-		// Allocate memory for the new array
 		this->numberOfSeatsPerRow = new int[numberOfRows];
-
-		// Copy the values from the input array to the member array
 		for (int i = 0; i < numberOfRows; i++) {
 			cout << "Row " << i + 1 << " ";
 			cin >> numberOfSeatsPerRow[i];
@@ -380,14 +575,14 @@ public:
 		}
 		char buffer[200];
 		cout << "Name Room: "<<endl;
-		in>>buffer; //write location without space
+		in>>buffer; 
 		c.setNameRoom(buffer);
 		if (c.nameZone != nullptr) {
 			delete[] c.nameZone;
 		}
 		char buffer1[200];
 		cout << "Name Zone: "<<endl;
-		in>>buffer1; //write location without space
+		in>>buffer1; 
 		c.setNameZone(buffer1);
 		cout << "Number of rows: ";
 		in >> c.numberOfRows;
@@ -456,9 +651,95 @@ public:
 		}
 		return *this;
 	}
+
+	bool operator>(const Location& l) {
+		return numberOfRows > l.numberOfRows;
+	}
+
+	bool operator<(const Location& l) {
+		return !(*this > l);
+	}
+
 };
 
+
+
 int Location::totalLocations = 10;
+
+class ReducedTickets : public Tickets {
+private:
+	double discountPercentage;
+	bool hasDiscount;
+
+public:
+	ReducedTickets() :Tickets() {
+		this->discountPercentage = 0;
+		this->hasDiscount = 0;
+	}
+
+	ReducedTickets(int category, int price, int* pricesPerCategory, double discountPercentage, bool hasDiscount) : Tickets (category, price, pricesPerCategory) {
+		this->discountPercentage = discountPercentage;
+		this->hasDiscount = hasDiscount;
+	}
+
+	ReducedTickets(const ReducedTickets& rt) : Tickets(rt) {
+		this->discountPercentage = rt.discountPercentage;
+		this->hasDiscount = rt.hasDiscount;
+	}
+
+	~ReducedTickets() {}
+
+	double getDiscountPercentage() {
+		return discountPercentage;
+	}
+
+	void setDiscountPercentage(double discountPercentage) {
+		this->discountPercentage = discountPercentage;
+	}
+
+	bool getHasDiscount() const {
+		return hasDiscount;
+	}
+
+	void setHasDiscount(bool hasDiscount) {
+		this->hasDiscount = hasDiscount;
+	}
+
+	ReducedTickets& operator=(const ReducedTickets& rt) {
+		if (this != &rt) {
+			Tickets::operator=(rt);
+			discountPercentage = rt.discountPercentage;
+			hasDiscount = rt.hasDiscount;
+		}
+		return *this;
+	}
+
+	friend istream& operator>>(istream& in, ReducedTickets& rt) {
+		in >> (Tickets&)rt;
+		cout << "Discount Percentage: ";
+		in >> rt.discountPercentage;
+		cout << "Has Discount (1 for true, 0 for false): ";
+		in >> rt.hasDiscount;
+		return in;
+	}
+
+
+	friend ostream& operator<<(ostream& out, const ReducedTickets& rt) {
+		out << (Tickets&)rt;
+		out << "Discount Percentage: " << rt.discountPercentage << endl;
+		out << "Has Discount: " << (rt.hasDiscount ? "true" : "false") << endl;
+		return out;
+	}
+
+
+	string showClassType() {
+		return "Reduced Ticket!";
+	}
+
+	string eventType() {
+		return "Unknown, but the ticket is discounted!";
+	}
+};
 
 int main()
 {
@@ -487,7 +768,7 @@ int main()
 
 	int pricesCategories[3] = { 100, 200, 300 };
 
-	Tickets t2(1, 100, 100);
+	Tickets t2(1, 100, pricesCategories);
 
 	cin >> t2;
 	cout << t2;
@@ -513,8 +794,9 @@ int main()
 	l1.setNameRoom("Sala");
 	l1.setNumberOfRows(5);
 	l1.setNoOfname(3);
-	int* seatsPerRow = new int[l1.getNumberOfRows()];
-	l1.setNumberOfSeatsPerRow(seatsPerRow, l1.getNumberOfRows());
+
+	int seatsPerRow[3] = { 100,200,100 };
+	l1.setNumberOfSeatsPerRow(seatsPerRow, 3);
 
 	cout << endl;
 	cout << l1.getLocationId() << endl;
@@ -548,5 +830,166 @@ int main()
 
 	cin >> l3;
 	cout << l3;
+
+	cout << endl << endl;
+	if (e1 == e2) {
+		cout << "Events are the same." << endl;
+	}
+	else {
+		cout << "Events are different." << endl;
+	}
+
+
+	cout << endl << endl;
+
+	Tickets t3 = t1 + t2;
+	cout << "Total price after addition: " << t3.getPrice() << endl;
+
+	Tickets t4 = t3 - t1;
+	cout << "Total price after subtraction: " << t4.getPrice() << endl;
+
+
+	cout << endl << endl;
+
+	if (l1 > l2) {
+		cout << "L1 has more rows than L2." << endl;
+	}
+	else {
+		cout << "L1 does not have more rows than L2." << endl;
+	}
+
+	cout << endl << endl;
+
+	ReducedTickets rt1;
+	cout << rt1 << endl;
+
+	ReducedTickets rt2(2, 50, new int[2] {30, 25}, 10.0, true);
+	cout << rt2 << endl;
+
+	ReducedTickets rt3 = rt1;
+	cout << rt3 << endl;
+
+
+	rt3 = rt2;
+	cout << rt3 << endl;
+
+
+	cout << endl << endl;
+
+	Match match1;
+	cout << match1 << endl;
+
+	Match match2("Romania vs England", "15/01/2024", "18:00", true, true);
+	cout << match2 << endl;
+
+	Match match3 = match1;
+
+	cout << match3 << endl;
+
+	match3 = match2;
+	cout << match3 << endl;
+
+
+	cout << endl << endl << endl;
+	ManageServices* vMs[4];
+	vMs[0] = &e1;
+	vMs[1] = &match1;
+	vMs[2] = &t2;
+	vMs[3] = &rt3;
+
+	for (int i = 0; i < 4; i++) {
+		cout << vMs[i]->eventType() << endl;
+		cout << vMs[i]->showClassType() << endl;
+		cout << vMs[i]->noOfPersonsForSecurity() << endl;
+		cout << vMs[i]->needsMedicalCrew() << endl;
+		cout << "======================================" << endl;
+	}
+
+	cout << endl << endl << endl << endl;
+
+	EventManager evM;
+	cout << evM << endl;
+	evM.addEvent(e1);
+	evM.addEvent(match1);
+	evM.addEvent(match2);
+	evM.addEvent(e2);
+
+	cout << evM << endl;
+
+	evM.removeEvent(e1);
+	evM.removeEvent(match1);
+	cout << "--------------------------------------------" << endl;
+	cout << evM << endl;
+
+	cout << "==================================================" << endl << endl;
+
+	string input;
+
+	bool inMenu = false;
+
+	while (true) {
+		if (!inMenu) {
+			cout << "Enter 'menu' to access the menu: ";
+			cin >> input;
+
+			if (input != "menu") {
+				cout << "Invalid input. Try again." << endl;
+				continue;
+			}
+			else {
+				inMenu = true;
+				system("cls");
+				system("Color 3f");
+			}
+		}
+		cout << endl << endl << endl << endl;
+		cout << "MENU" << endl;
+		cout << "1. Create an Event" << endl;
+		cout << "2. Create a Location" << endl;
+		cout << "3. Display Event" << endl;
+		cout << "4. Display Location" << endl;
+		cout << "5. Exit" << endl;
+		cout << endl << endl << endl << endl;
+
+		int choice;
+		cout << "Select an option: ";
+		cin >> choice;
+
+		if (choice == 1) {
+			cout << "You selected Create an Event." << endl;
+			cin >> e1;
+
+		}
+		else if (choice == 2) {
+			cout << "You selected Create a Location." << endl;
+			cin >> l1;
+		}
+		else if (choice == 3) {
+			cout << "You selected Display Event." << endl;
+			cout << e1 << endl;
+		}
+		else if (choice == 4) {
+			cout << "You selected Display Location." << endl;
+			cout << l1 << endl;
+		}
+		else if (choice == 5) {
+			cout << "Exiting the menu." << endl;
+			system("Color F1");
+			return 0;
+		}
+		else {
+			cout << "Invalid choice. Try again." << endl;
+		}
+
+		cout << "Do you want to perform another action? (yes/no): ";
+		cin >> input;
+
+		if (input != "yes") {
+			cout << "Exiting the menu." << endl;
+			break;
+		}
+	}
+
+	return 0;
 
 }
